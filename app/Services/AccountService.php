@@ -2,75 +2,60 @@
 
 namespace App\Services;
 
-use App\Storage\MemoryStorage;
+use App\Services\Accounts\DepositAction;
+use App\Services\Accounts\GetBalanceAction;
+use App\Services\Accounts\ResetAccountsAction;
+use App\Services\Accounts\TransferAction;
+use App\Services\Accounts\WithdrawAction;
 
 class AccountService
 {
+    private ResetAccountsAction $resetAccounts;
+
+    private GetBalanceAction $getBalance;
+
+    private DepositAction $deposit;
+
+    private WithdrawAction $withdraw;
+
+    private TransferAction $transfer;
+
+    public function __construct(
+        ?ResetAccountsAction $resetAccounts = null,
+        ?GetBalanceAction $getBalance = null,
+        ?DepositAction $deposit = null,
+        ?WithdrawAction $withdraw = null,
+        ?TransferAction $transfer = null,
+    ) {
+        $this->resetAccounts = $resetAccounts ?? app(ResetAccountsAction::class);
+        $this->getBalance = $getBalance ?? app(GetBalanceAction::class);
+        $this->deposit = $deposit ?? app(DepositAction::class);
+        $this->withdraw = $withdraw ?? app(WithdrawAction::class);
+        $this->transfer = $transfer ?? app(TransferAction::class);
+    }
+
     public function reset(): void
     {
-        MemoryStorage::$accounts = [];
+        ($this->resetAccounts)();
     }
 
     public function findBalance(string $accountId): ?int
     {
-        return MemoryStorage::$accounts[$accountId] ?? null;
+        return ($this->getBalance)($accountId);
     }
 
     public function deposit(string $destination, int $amount): array
     {
-        if (! isset(MemoryStorage::$accounts[$destination])) {
-            MemoryStorage::$accounts[$destination] = 0;
-        }
-
-        MemoryStorage::$accounts[$destination] += $amount;
-
-        return [
-            'destination' => [
-                'id' => $destination,
-                'balance' => MemoryStorage::$accounts[$destination],
-            ],
-        ];
+        return ($this->deposit)($destination, $amount);
     }
 
     public function withdraw(string $origin, int $amount): ?array
     {
-        if (! isset(MemoryStorage::$accounts[$origin])) {
-            return null;
-        }
-
-        MemoryStorage::$accounts[$origin] -= $amount;
-
-        return [
-            'origin' => [
-                'id' => $origin,
-                'balance' => MemoryStorage::$accounts[$origin],
-            ],
-        ];
+        return ($this->withdraw)($origin, $amount);
     }
 
     public function transfer(string $origin, string $destination, int $amount): ?array
     {
-        if (! isset(MemoryStorage::$accounts[$origin])) {
-            return null;
-        }
-
-        if (! isset(MemoryStorage::$accounts[$destination])) {
-            MemoryStorage::$accounts[$destination] = 0;
-        }
-
-        MemoryStorage::$accounts[$origin] -= $amount;
-
-        MemoryStorage::$accounts[$destination] += $amount;
-
-        return [
-            'origin' => [
-                'id' => $origin,
-                'balance' => MemoryStorage::$accounts[$origin],
-            ],
-            'destination' => [
-                'id' => $destination,
-                'balance' => MemoryStorage::$accounts[$destination],
-            ],
-        ];
+        return ($this->transfer)($origin, $destination, $amount);
     }
 }

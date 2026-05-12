@@ -2,13 +2,13 @@
 
 namespace App\Http\Controllers;
 
-use App\Storage\MemoryStorage;
+use App\Services\AccountService;
 
 class ResetController extends Controller
 {
-    public function __invoke()
+    public function __invoke(AccountService $service)
     {
-        MemoryStorage::$accounts = [];
+        $service->reset();
 
         return response('', 200);
     }
