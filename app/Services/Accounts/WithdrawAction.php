@@ -18,6 +18,10 @@ readonly class WithdrawAction
             return null;
         }
 
+        if ($currentBalance < $amount) {
+            return null;
+        }
+
         $balance = $currentBalance - $amount;
         $this->accounts->set($origin, $balance);
 

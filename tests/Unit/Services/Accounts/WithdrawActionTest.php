@@ -45,7 +45,7 @@ class WithdrawActionTest extends TestCase
         $this->assertEquals(200, $result['origin']['balance']);
     }
 
-    public function test_allows_withdrawal_that_results_in_negative_balance(): void
+    public function test_rejects_withdrawal_with_insufficient_balance(): void
     {
         $repository = $this->createMock(AccountRepository::class);
         $repository->expects($this->once())
@@ -53,14 +53,13 @@ class WithdrawActionTest extends TestCase
             ->with('100')
             ->willReturn(100);
 
-        $repository->expects($this->once())
-            ->method('set')
-            ->with('100', -500);
+        $repository->expects($this->never())
+            ->method('set');
 
         $action = new WithdrawAction($repository);
         $result = $action('100', 600);
 
-        $this->assertEquals(-500, $result['origin']['balance']);
+        $this->assertNull($result);
     }
 
     public function test_withdraw_entire_balance(): void

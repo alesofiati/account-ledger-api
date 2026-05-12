@@ -14,9 +14,9 @@ class BalanceController extends Controller
         );
 
         if ($balance === null) {
-            return response()->json('0', 404);
+            return response()->json(0, 404);
         }
 
-        return response((string) $balance, 200);
+        return response()->json($balance, 200);
     }
 }

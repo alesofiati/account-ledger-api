@@ -18,6 +18,10 @@ readonly class TransferAction
             return null;
         }
 
+        if ($originBalance < $amount) {
+            return null;
+        }
+
         $destinationBalance = $this->accounts->get($destination) ?? 0;
         $newOriginBalance = $originBalance - $amount;
         $newDestinationBalance = $destinationBalance + $amount;

@@ -97,17 +97,16 @@ class TransferActionTest extends TestCase
         $this->assertEquals([['100', 600], ['999', 400]], $setCalls);
     }
 
-    public function test_allows_transfer_resulting_in_negative_origin_balance(): void
+    public function test_rejects_transfer_with_insufficient_origin_balance(): void
     {
         $repository = $this->createMock(AccountRepository::class);
 
         $getCalls = [
             ['100', 100],
-            ['200', 50],
         ];
         $getCallIndex = 0;
 
-        $repository->expects($this->exactly(2))
+        $repository->expects($this->once())
             ->method('get')
             ->willReturnCallback(function ($accountId) use ($getCalls, &$getCallIndex) {
                 $call = $getCalls[$getCallIndex++];
@@ -115,21 +114,13 @@ class TransferActionTest extends TestCase
                 return $call[1];
             });
 
-        $setCalls = [];
-        $repository->expects($this->exactly(2))
-            ->method('set')
-            ->willReturnCallback(function ($accountId, $balance) use (&$setCalls) {
-                $setCalls[] = [$accountId, $balance];
-            });
+        $repository->expects($this->never())
+            ->method('set');
 
         $action = new TransferAction($repository);
         $result = $action('100', '200', 500);
 
-        $this->assertEquals(-400, $result['origin']['balance']);
-        $this->assertEquals(550, $result['destination']['balance']);
-
-        // Verify set calls
-        $this->assertEquals([['100', -400], ['200', 550]], $setCalls);
+        $this->assertNull($result);
     }
 
     public function test_transfer_between_same_accounts(): void

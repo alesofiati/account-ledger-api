@@ -115,4 +115,31 @@ class EventControllerTest extends TestCase
             ->assertNotFound()
             ->assertSee(0);
     }
+
+    public function test_withdraw_with_insufficient_balance()
+    {
+        (new AccountService)->deposit('100', 10);
+
+        $this->postJson('/event', [
+            'type' => 'withdraw',
+            'origin' => '100',
+            'amount' => 20,
+        ])
+            ->assertNotFound()
+            ->assertSee(0);
+    }
+
+    public function test_transfer_with_insufficient_balance()
+    {
+        (new AccountService)->deposit('100', 10);
+
+        $this->postJson('/event', [
+            'type' => 'transfer',
+            'origin' => '100',
+            'destination' => '300',
+            'amount' => 20,
+        ])
+            ->assertNotFound()
+            ->assertSee(0);
+    }
 }
