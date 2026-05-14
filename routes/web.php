@@ -9,6 +9,6 @@ Route::get('/', function () {
     return view('welcome');
 });
 
-Route::get('reset', [ResetController::class, '__invoke'])->name('reset');
+Route::post('reset', [ResetController::class, '__invoke'])->name('reset');
 Route::get('balance', [BalanceController::class, '__invoke'])->name('balance');
 Route::post('event', [EventController::class, '__invoke'])->name('event');

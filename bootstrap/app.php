@@ -12,7 +12,8 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->preventRequestForgery(except: [
-            'event'
+            'event',
+            'reset'
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
