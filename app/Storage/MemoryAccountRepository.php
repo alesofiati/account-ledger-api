@@ -3,27 +3,28 @@
 namespace App\Storage;
 
 use App\Contracts\AccountRepository;
+use Illuminate\Support\Facades\Cache;
 
 class MemoryAccountRepository implements AccountRepository
 {
     public function reset(): void
     {
-        MemoryStorage::$accounts = [];
+        Cache::clear();
     }
 
     public function get(string $accountId): ?int
     {
-        return MemoryStorage::$accounts[$accountId] ?? null;
+        return Cache::get($accountId);
     }
 
     public function set(string $accountId, int $balance): void
     {
-        MemoryStorage::$accounts[$accountId] = $balance;
+        Cache::put($accountId, $balance);
     }
 
     public function exists(string $accountId): bool
     {
-        return isset(MemoryStorage::$accounts[$accountId]);
+        return Cache::has($accountId);
     }
 }
 

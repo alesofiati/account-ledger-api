@@ -7,12 +7,6 @@ use Tests\TestCase;
 
 class EventControllerTest extends TestCase
 {
-    protected function setUp(): void
-    {
-        parent::setUp();
-
-        app(AccountService::class)->reset();
-    }
 
     public function test_create_account_with_initial_balance()
     {
